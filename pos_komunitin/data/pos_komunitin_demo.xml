@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<odoo>
+  <data>
+    <!-- Komunitin Configuration with test account for testing in a local development environment. -->
+    <record id="pos_komunitin_demo_configuration" model="pos_komunitin.configuration">
+      <field name="name">Komunitin (localhost)</field>
+      <field name="auth_url">http://host.docker.internal:2029/oauth2</field>
+      <field name="accounting_url">http://host.docker.internal:2029/ces/api/accounting</field>
+      <field name="email">fermat@integralces.net</field>
+      <field name="password">integralces</field>
+      <field name="account">NET20003</field>
+      <field name="currency">NET2</field>
+      <field name="currency_value">100</field>
+    </record>
+    <!-- Account journal configured to work with POs and Komunitin-->
+    <record id="pos_komunitin_demo_journal" model="account.journal">
+      <field name="name">Komunitin demo</field>
+      <field name="code">KOMD</field>
+      <!-- POS account must be of type bank or cash-->
+      <field name="type">bank</field>
+      <!-- Use in POS -->
+      <field name="journal_user">True</field>
+      <!-- Use Komunitin config -->
+      <field name="pos_komunitin_config" ref="pos_komunitin_demo_configuration"/>
+    </record>
+    <!-- POS instance configured with Komunitin payments enabled -->
+    <record id="pos_komunitin_demo_shop" model="pos.config">
+      <field name="name">Komunitin demo</field>
+      <!--
+          For many to many fields, this is the format we must use to specify the relation.
+          Not found docs more updated than https://doc.odoo.com/v6.0/developer/2_5_Objects_Fields_Methods/methods.html#osv.osv.osv.write
+        -->
+      <field name="journal_ids" eval="[(6,0,[ref('pos_komunitin_demo_journal')])]"></field>
+    </record>
+  </data>
+</odoo>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="PosPaymentsScreenTextInputPopupWidget">
+        <div role="dialog" class="modal-dialog">
+            <div class="popup">
+                <header class="title"><t t-esc=" widget.options.title || '' " /></header>
+                <main class="body">
+                    <input type='text' t-att-value="widget.options.value || ''"></input>
+                </main>
+                <div class="footer">
+                    <div class="button confirm">
+                        Ok
+                    </div>
+                    <div class="button cancel">
+                        Cancel
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="PosLoadingPopupWidget">
+        <div role="dialog" class="modal-dialog">
+            <div class="popup popup-alert">
+                <p class="title"><t t-esc=" widget.options.title || 'Loading' " /></p>
+                <p class="body"><t t-esc=" widget.options.body || '' "/></p>
+                <!-- Todo: show an animation here-->
+            </div>
+        </div>
+    </t>
+
+    <t t-name="ConfirmPopupWidget">
+        <div role="dialog" class="modal-dialog">
+            <div t-attf-class="popup {{widget.options.error ? 'popup-error' : 'popup-confirm'}}">
+                <header class="title"><t t-esc=" widget.options.title " /></header>
+                <main class="body"><t t-esc="  widget.options.body "/></main>
+                <footer class="footer">
+                    <div class="button confirm">
+                        <t t-esc=" widget.options.confirmLabel "/>
+                    </div>
+                    <div class="button cancel">
+                        <t t-esc=" widget.options.cancelLabel "/>
+                    </div>
+                </footer>
+            </div>
+        </div>
+    </t>
+
+</templates>

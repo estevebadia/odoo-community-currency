@@ -1,0 +1,17 @@
+{
+  "name": "odoo-community-currency",
+  "version": "0.1.0",
+  "description": "Community Currecy features for Odoo",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/estevebadia/odoo-community-currency.git"
+  },
+  "bugs": {
+    "url": "https://github.com/estevebadia/odoo-community-currency/issues"
+  },
+  "homepage": "https://github.com/estevebadia/odoo-community-currency#readme",
+  "devDependencies": {
+    "babel-eslint": "^10.1.0",
+    "eslint": "^6.8.0"
+  }
+}
