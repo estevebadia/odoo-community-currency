@@ -14,8 +14,10 @@ odoo.define("pos_komunitin.pos_komunitin", function (require) {
      */
     var createUUID = (function (uuidRegEx, uuidReplacer) {
         return function () {
-            return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx"
-                .replace(uuidRegEx, uuidReplacer);
+            return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+                uuidRegEx,
+                uuidReplacer
+            );
         };
     })(/[xy]/g, function (c) {
         var r = (Math.random() * 16) | 0,
@@ -113,9 +115,9 @@ odoo.define("pos_komunitin.pos_komunitin", function (require) {
         },
     });
 
-    // Load the field pos_komunitin_config in journal objects so we can
+    // Load the field pos_komunitin_config in account.journal objects so we can
     // know if the journal is related to this module.
-    models.load_fields("account.journal", "pos_komunitin_config");
+    models.load_fields("account.journal", ["pos_komunitin_config", "bank_id"]);
     // Load pos_komunitin_config objects.
     models.load_models(
         {
@@ -135,6 +137,58 @@ odoo.define("pos_komunitin.pos_komunitin", function (require) {
             after: "account.journal",
         }
     );
+    // Load the komunitin bank accounts in res.partner objects.
+    models.load_fields("res.partner", "bank_ids");
+    // Load bank account objects for clients
+    models.load_models(
+        {
+            model: "res.partner.bank",
+            label: "Komunitin bank accounts",
+            fields: ["bank_id", "partner_id", "acc_number"],
+            // Get only the records related to loaded partners and to the banks
+            domain: function (self) {
+                return [
+                    [
+                        "partner_id",
+                        "in",
+                        self.partners.map(function (partner) {
+                            return partner.id;
+                        }),
+                    ],
+                    [
+                        "bank_id",
+                        "in",
+                        self.journals
+                            .filter(function (journal) {
+                                return journal.pos_komunitin_config;
+                            })
+                            .map(function (journal) {
+                                return journal.bank_id[0];
+                            }),
+                    ],
+                ];
+            },
+            loaded: function (self, bankAccounts) {
+                // Put bankaccount to partner.komunitin_bank_account.
+                bankAccounts.forEach(function (bankAccount) {
+                    // Find the partner associated with this bank account.
+                    var partner = _.find(self.partners, function (partner) {
+                        return partner.id === bankAccount.partner_id[0];
+                    });
+                    // Save the bankAccount as a partner property.
+                    if (partner.komunitin_bank_accounts === undefined) {
+                        partner.komunitin_bank_accounts = [];
+                    }
+                    partner.komunitin_bank_accounts.push(bankAccount);
+                });
+            },
+        },
+        {
+            // we need both account.journal and res.partner, but account.journal
+            // loads after res.partner and we can set only one.
+            after: "account.journal",
+        }
+    );
 
     /**
      * Extend the PaymentsScreenWidged so when the user has a Komunitin
@@ -147,6 +201,17 @@ odoo.define("pos_komunitin.pos_komunitin", function (require) {
             return _.find(this.pos.pos_komunitin_configs, function (config) {
                 return config.id === id;
             });
+        },
+        get_client_bank_accounts(journal) {
+            var client = this.pos.get_client();
+            if (client && client.komunitin_bank_accounts) {
+                return client.komunitin_bank_accounts.filter(function (
+                    account
+                ) {
+                    return account.bank_id[0] === journal.bank_id[0];
+                });
+            }
+            return [];
         },
         /**
          * Performs the remote payment when user clicks on the [ Validate >> ] button.
@@ -176,37 +241,95 @@ odoo.define("pos_komunitin.pos_komunitin", function (require) {
             return this._super(forceValidation);
         },
         /**
+         * Return the account to be used to charge the givent paymentline.
+         *
+         * This function is asynchronous because it depends on user choice if
+         * there are more than one defined accounts.
+         *
+         * @param {models.Paymentline} paymentline
+         *
+         * @return {$.Deferred} Promise with the payer account number.
+         *
+         */
+        get_payer_account: function (paymentline) {
+            var def = new $.Deferred();
+            var client = this.pos.get_client();
+            if (!client) {
+                this.gui.show_popup("error", {
+                    title: "Missing client",
+                    body:
+                        "Set a customer with a valid account before validating this payment.",
+                    cancel: function () {
+                        // Delete pending payment.
+                        def.reject("Mising client");
+                    },
+                });
+                return def;
+            }
+
+            // Get the account numbers related to this client and payment method.
+            var accounts = this.get_client_bank_accounts(
+                paymentline.cashregister.journal
+            ).map(function (account) {
+                return account.acc_number;
+            });
+
+            if (accounts.length === 0) {
+                this.gui.show_popup("error", {
+                    title: "Missing Community Currency account",
+                    body:
+                        "The selected client does not have a Community Currency bank account for this payment method.",
+                    cancel: function () {
+                        // Delete pending payment.
+                        def.reject("Mising proper bank account client");
+                    },
+                });
+                return def;
+            }
+
+            if (accounts.length > 1) {
+                // The customer has more than one account. Choose only one.
+                this.gui.show_popup("selection", {
+                    title:
+                        "Choose the Community Currency account from where to pay",
+                    list: accounts.map(function (account) {
+                        return { label: account, item: account };
+                    }),
+                    confirm: function (item) {
+                        def.resolve(item);
+                    },
+                    cancel: function () {
+                        // user chose nothing
+                        def.reject("Bank account not chosen.");
+                    },
+                });
+                return def;
+            }
+
+            // There is only one available account for the selected client.
+            def.resolve(accounts[0]);
+            return def;
+        },
+        /**
          * Perform a payment using the Komunitin accounting protocol.
          *
          * @param {models.Paymentline} paymentline
          *
-         * @return {$.Deferred} promise. It is resolved on a committed payment, and rejected on a cancelled one.
+         * @return {$.Deferred} It is resolved on a committed payment, and rejected on a cancelled one.
          */
         do_payment: function (paymentline) {
-            var def = new $.Deferred();
             var self = this;
 
             // Payer account.
             if (!paymentline.komunitin_payer) {
-                this.gui.show_popup("paymentstextinput", {
-                    title: "Enter the customer Komunitin account",
-                    confirm: function (value) {
-                        paymentline.komunitin_payer = value;
-                        // This "deferred antipattern" is seen through the following code since
-                        // the JQuery Deferred doesn't allow .resolve(Deferred) and the show_popup
-                        // architecture doesn't allow us to reutrn the inner promise.
-                        self.do_payment(paymentline)
-                            .then(function (result) {
-                                def.resolve(result);
-                            })
-                            .fail(function (error) {
-                                // Maybe the payment failed because the payer is invalid: remove it and ask again on retry.
-                                paymentline.komunitin_payer = undefined;
-                                def.reject(error);
-                            });
-                    },
+                return this.get_payer_account(paymentline).then(function (
+                    account
+                ) {
+                    paymentline.komunitin_payer = account;
+                    return self.do_payment(paymentline).fail(function (error) {
+                        paymentline.komunitin_payer = undefined;
+                    });
                 });
-                return def;
             }
 
             // Build transaction description text.
@@ -241,7 +364,8 @@ odoo.define("pos_komunitin.pos_komunitin", function (require) {
                 body: _.str.sprintf(
                     "Charging %s to the community currency account %s...",
                     self.format_currency(paymentline.get_amount()),
-                    paymentline.komunitin_payer)
+                    paymentline.komunitin_payer
+                ),
             });
 
             var data = {
@@ -259,7 +383,10 @@ odoo.define("pos_komunitin.pos_komunitin", function (require) {
                     args: [data],
                 })
                 .fail(function (error) {
-                    return self.handle_payment_error(error.data.message, paymentline);
+                    return self.handle_payment_error(
+                        error.data.message,
+                        paymentline
+                    );
                 })
                 .then(function (response) {
                     return self.handle_payment_response(response, paymentline);
@@ -280,7 +407,10 @@ odoo.define("pos_komunitin.pos_komunitin", function (require) {
             };
             // Open informative popup.
             this.gui.show_popup("loading", {
-                body: _.str.sprintf("Getting transaction %s...", paymentline.komunitin_transaction_id)
+                body: _.str.sprintf(
+                    "Getting transaction %s...",
+                    paymentline.komunitin_transaction_id
+                ),
             });
 
             return rpc
@@ -290,7 +420,10 @@ odoo.define("pos_komunitin.pos_komunitin", function (require) {
                     args: [data],
                 })
                 .fail(function (error) {
-                    return self.handle_payment_error(error.data.message, paymentline);
+                    return self.handle_payment_error(
+                        error.data.message,
+                        paymentline
+                    );
                 })
                 .then(function (response) {
                     return self.handle_payment_response(response, paymentline);
@@ -308,7 +441,10 @@ odoo.define("pos_komunitin.pos_komunitin", function (require) {
             };
             // Open informative popup.
             this.gui.show_popup("loading", {
-                body: _.str.sprintf("Deleting transaction %s...", paymentline.komunitin_transaction_id)
+                body: _.str.sprintf(
+                    "Deleting transaction %s...",
+                    paymentline.komunitin_transaction_id
+                ),
             });
             return rpc
                 .query({
@@ -317,7 +453,10 @@ odoo.define("pos_komunitin.pos_komunitin", function (require) {
                     args: [data],
                 })
                 .fail(function (error) {
-                    return self.handle_payment_error(error.data.message, paymentline);
+                    return self.handle_payment_error(
+                        error.data.message,
+                        paymentline
+                    );
                 })
                 .then(function () {
                     return self.handle_payment_deleted(paymentline);
@@ -360,11 +499,16 @@ odoo.define("pos_komunitin.pos_komunitin", function (require) {
 
                 // Acknowledge and resolve promise.
                 var config = this.get_config(paymentline);
-                var amount = paymentline.komunitin_amount / config.currency_value;
+                var amount =
+                    paymentline.komunitin_amount / config.currency_value;
 
                 this.gui.show_popup("alert", {
                     title: "Payment successful",
-                    body: _.str.sprintf("Sucessfully charged %s from %s", self.format_currency(amount), payer),
+                    body: _.str.sprintf(
+                        "Sucessfully charged %s from %s",
+                        self.format_currency(amount),
+                        payer
+                    ),
                     cancel: function () {
                         // Closes popup.
                         def.resolve(result);
@@ -404,7 +548,10 @@ odoo.define("pos_komunitin.pos_komunitin", function (require) {
                 this.gui.show_popup("paymentconfirm", {
                     error: true,
                     title: "Payment rejected",
-                    body: _.str.sprintf ("Payment from account %s has been rejected. You can delete this payment or pay by other means.", paymentline.komunitin_payer),
+                    body: _.str.sprintf(
+                        "Payment from account %s has been rejected. You can delete this payment or pay by other means.",
+                        paymentline.komunitin_payer
+                    ),
                     confirmLabel: "OK",
                     cancelLabel: "Delete",
                     confirm: function () {
@@ -443,7 +590,10 @@ odoo.define("pos_komunitin.pos_komunitin", function (require) {
             paymentline.komunitin_transaction_id = undefined;
             this.gui.show_popup("alert", {
                 title: "Payment deleted",
-                body: _.str.sprintf("Payment from account %s has been deleted. You can retry the payment or pay by other means.", paymentline.komunitin_payer),
+                body: _.str.sprintf(
+                    "Payment from account %s has been deleted. You can retry the payment or pay by other means.",
+                    paymentline.komunitin_payer
+                ),
                 cancel: function () {
                     def.reject("Payment deleted");
                 },

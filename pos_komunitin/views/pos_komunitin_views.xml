@@ -13,8 +13,12 @@
                         </div>
                         <div>
                             <p>
-                                <i>Komunitin Configurations</i> define the account that will be used when 
+                                <i>Komunitin Configurations</i> define the user that will be used when 
                                 getting payments from customers using a Community Currency in Point of Sale.
+                            </p>
+                            <p>
+                                Besides this record, you must define a <i>Bank</i> for Community Currency accounts
+                                and set the bank account numbers in the PoS Journal and in all customers.
                             </p>
                             <p>
                                 In order to use this module, your Community Currency provider must support 
@@ -26,7 +30,7 @@
                             <field name="accounting_url"/>
                             <field name="email"/>
                             <field name="password"/>
-                            <field name="account"/>
+                            <field name="currency"/>
                             <field name="currency_value"/>
                         </group>
                     </sheet>
@@ -41,7 +45,7 @@
                 <tree>
                     <field name="name"/>
                     <field name="email"/>
-                    <field name="account"/>
+                    <field name="currency"/>
                 </tree>
             </field>
         </record>

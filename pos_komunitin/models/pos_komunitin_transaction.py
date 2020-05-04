@@ -57,14 +57,17 @@ class KomunitinTransaction(models.Model):
         pos_session.login()
 
         return pos_session
+    
+    def _get_journal(self, journal_id):
+        pos_session = self._get_pos_session()
+        config = pos_session.config_id
+        return config.journal_ids.filtered(lambda r: r.id == journal_id)
 
-    def _get_pos_komunitin_config(self, journal_id):
+    def _get_pos_komunitin_config(self, journal):
         """Get the configuration related to the given account journal id. 
         :rtype: PosKomunitinConfiguration
         """
-        pos_session = self._get_pos_session()
-        config = pos_session.config_id
-        journal = config.journal_ids.filtered(lambda r: r.id == journal_id)
+
         if journal and journal.pos_komunitin_config:
             return journal.pos_komunitin_config.sudo()
         raise exceptions.UserError(
@@ -241,9 +244,13 @@ class KomunitinTransaction(models.Model):
         """Perform a payment using the Komunitin accounting protocol API.
         Return the komunitin accountin api result JSON object.
         """
-        config = self._get_pos_komunitin_config(data['journal_id'])
+        journal = self._get_journal(data['journal_id'])
+        config = self._get_pos_komunitin_config(journal)
 
-        # Compute amount to send.
+        # Get account from PoS journal.
+        account = journal.bank_acc_number
+
+        # Check amount to charge.
         if (data['amount'] <= 0):
             raise exceptions.UserError("Amount must be positive")
 
@@ -254,7 +261,7 @@ class KomunitinTransaction(models.Model):
                 "attributes": {
                     "transfers": [{
                         "payer": self._get_account_url(config, data['payer']),
-                        "payee": self._get_account_url(config, config.account),
+                        "payee": self._get_account_url(config, account),
                         "amount": data['amount'],
                         "meta": data['meta'],
                     }],
@@ -270,7 +277,8 @@ class KomunitinTransaction(models.Model):
         """Delete a payment created with do_payment
         Return True
         """
-        config = self._get_pos_komunitin_config(data['journal_id'])
+        journal = self._get_journal(data['journal_id'])
+        config = self._get_pos_komunitin_config(journal)
         url = self._get_transaction_url(config, data['transaction_id'])
 
         return self._komunitin_request(config, 'DELETE', url)
@@ -279,7 +287,8 @@ class KomunitinTransaction(models.Model):
     def get_payment(self, data):
         "Fetches a payment JSON object from the Komunitin service"
 
-        config = self._get_pos_komunitin_config(data['journal_id'])
+        journal = self._get_journal(data['journal_id'])
+        config = self._get_pos_komunitin_config(journal)
         url = self._get_transaction_url(config, data['transaction_id'])
 
         return self._komunitin_request(config, 'GET', url)

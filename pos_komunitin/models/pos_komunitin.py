@@ -24,8 +24,6 @@ class PosKomunitinConfiguration(models.Model):
                            help='Password of the merchant to authenticate them on the payment provider server.')
     currency = fields.Char(string="Merchand currency", required=True,
                         help='The code of the merchand currency. Usually the first 4 letters of the account. Ex: "ABCD".')
-    account = fields.Char(string='Merchand account', required=True,
-                          help='The account URL where to receive the payments. Usually 4 letters plus 4 numbers. Ex "ABCD0123"')
     currency_value = fields.Float(string="Currency value", required=True, default=100,
                                   help='Constant to apply to currency amounts before sending to komunitin API. Includes the currency value and the currency scale.')
 
@@ -64,7 +62,7 @@ class AccountJournal(models.Model):
     _inherit = 'account.journal'
 
     pos_komunitin_config = fields.Many2one(
-        'pos_komunitin.configuration', string='Komunitin Credentials', help='The configuration of Komunitin used for this journal')
+        'pos_komunitin.configuration', string='Komunitin configuration', help='The configuration of Komunitin used for this journal')
 
 
 class PosOrder(models.Model):
@@ -72,9 +70,8 @@ class PosOrder(models.Model):
     """
     _inherit = "pos.order"
 
-    @api.model
     def _payment_fields(self, ui_paymentline):
-        """Extend function to add komunitin payment fields from ui_paymentline object
+        """Add komunitin fields to the arguments of add_payment function.
         """
         payment_fields = super(PosOrder, self)._payment_fields(ui_paymentline)
 
@@ -86,29 +83,13 @@ class PosOrder(models.Model):
 
         return payment_fields
 
-    def add_payment(self, data):
-        """Extend function to add komunitin payment fields to account.bank.sttement.line
+    def _prepare_bank_statement_line_payment_values(self, data):
+        """Add komunitin fields to the statement_line to be created by add_payment function.
         """
-        # TODO: better understand and then refactor these lines taken from pos_mercury.
-        statement_id = super(PosOrder, self).add_payment(data)
-        statement_lines = self.env['account.bank.statement.line'].search([('statement_id', '=', statement_id),
-                                                                          ('pos_statement_id',
-                                                                           '=', self.id),
-                                                                          ('journal_id', '=', data['journal'])])
-        statement_lines = statement_lines.filtered(lambda line: float_compare(line.amount, data['amount'],
-                                                                              precision_rounding=line.journal_currency_id.rounding) == 0)
-
-        # we can get multiple statement_lines when there are > 1
-        # payments with the same amount. In that case it doesn't
-        # matter which statement line we pick, just pick one that
-        # isn't already used.
-        for line in statement_lines:
-            if not line.komunitin_transaction_id:
-                line.komunitin_transaction_id = data.get(
-                    'komunitin_transaction_id')
-                line.komunitin_payer = data.get('komunitin_payer')
-                line.komunitin_amount = data.get('komunitin_amount')
-
-                break
-
-        return statement_id
+        args = super(PosOrder, self)._prepare_bank_statement_line_payment_values(data)
+        args.update({
+            'komunitin_transaction_id': data['komunitin_transaction_id'],
+            'komunitin_payer': data['komunitin_payer'],
+            'komunitin_amount': data['komunitin_amount']
+        })
+        return args
