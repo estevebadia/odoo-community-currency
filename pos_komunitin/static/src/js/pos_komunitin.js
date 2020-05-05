@@ -124,8 +124,11 @@ odoo.define("pos_komunitin.pos_komunitin", function (require) {
             model: "pos_komunitin.configuration",
             label: "Komunitin configuration",
             ids: function (self) {
-                return self.journals.map(function (journal) {
-                    // The field journal.pos_komunitin_config is an array [id, name].
+                return self.journals
+                .filter(function (journal) {
+                    return journal.pos_komunitin_config;
+                })
+                .map(function (journal) {
                     return journal.pos_komunitin_config[0];
                 });
             },
