@@ -1,31 +1,53 @@
 # Odoo Point of Sale integration of Komunitin accounting protocol
 **This addon is a proof of Concept, don't use it in prodyuction environment**
 
-This Odoo addon allows to add a new payment method in Point of Sale so that it instantly charges the required amount from the customer using the [Komunitin accounting protocol](https://github.com/komunitin/komunitin-api/blob/master/accounting/).
+Odoo addon providing a new payment method in Point of Sale for Community Currencies. It uses the [Komunitin accounting protocol](https://github.com/komunitin/komunitin-api/blob/master/accounting/) to communicate with your community currency provider to instantly perform payments in community currencies. That is currently only implemented in [IntegralCES](https://integralces.net) community exchange system.
 
 ## Set up
-Before installing this addon, you must have a working instance of Odoo 12 with the Point of Sale App.
+Before installing this addon, you need a working instance of Odoo 12 with the Point of Sale App. Alternatively, and just for test purposes, you may quickly setup a testing environment using Docker and the docker-compose file provided at the top directory of this repository.
 
-### 1. Install the addon
-1. Download the folder `pos_komunitin` from this repository and place its contents in the addons folder, usually `/mnt/extra-addons/`.
-2. Go to *Apps* and in the search bar remove the `Apps` tag and search for `komunitin`. Then install the *Komunitin Payments* addon.
+### 1. Environment
+Test environment with docker:
+
+1. Go to the root forlder of this repository and execute `docker-compose up -d`
+2. Install your new Odoo instance at `http://localhost:8069`
+3. Go to *Apps* and install *Point of Sale*. You may also need to install a localization package.
+
+Classic environment:
+
+1. Download the folder `pos_komunitin` from this repository and place it in the addons directory, usually `/mnt/extra-addons/`.
+
+In any case, enable the addon:
+
+4. Go to *Apps* and in the search bar remove the `Apps` tag and search for `komunitin`. Then install the *Komunitin Payments* addon.
 
 ### 2. Create the company bank account
-1. Go to *Settings* and click the *Set up* button under your company section.  
-2. Click on the *Partner* value.
+1. Go to *Settings* and click the link *Activate the developer mode*.
+1. Click the *Set up* button under your company section.  
+2. Click on the *Partner* value. If you don't see this value you probably aren't in developer mode.
 3. Click the *Edit* button, then select the tab *Invoicing*.
 4. Under *Bank accounts* section, click *Add a line*.
 5. Under *Bank*, chose *Create and Edit...* to create a new bank.
 6. Set a descriptive name for the bank record such as *Springfield city local currency*. You may fill the other fields or leave them blank.
 7. Click *Save* to save the new Bank. Community currency accounts will be related to rhis bank.
-8. Under *Account Number*, set the account number of your company. For example *ABCD0123*.
+8. Under *Account Number*, set the account number of your company. In test environments, you may use the account *NET20003*.
 9. Click *Save* to commit your changes.
 
 ### 3. Create the Komunitin configuration
-1. Go to *Settings* and click the link *Activate the developer mode*.
-2. Go to *Point of Sale* > *Configuration* > *Komunitin Configurations*. If you don't see this menu item then the addon has not been properly installed or you are not in developer mode.
-3. Click the *Create* button. You need to be a Point of Sale Manager to see this button.
-4. Fill all the fields and save. Ask your community currency administration in case of doubt.
+
+1. Go to *Point of Sale* > *Configuration* > *Komunitin Configurations*. If you don't see this menu item then the addon has not been properly installed or you are not in developer mode.
+2. Click the *Create* button. You need to be a Point of Sale Manager to see this button.
+3. Fill all the fields and save. Ask your community currency administration in case of doubt. If you're just testing, you may want to use the *demo* integralces instance. In this case use:
+
+| Field              | Value |
+| ---                | --- |
+| Auth API URL       | `https://demo.integralces.net/oauth2` |
+| Accounting API URL | `https://demo.integralces.net/ces/api/accounting` |
+| Merchand email     | `fermat@integralces.net` |
+| Merchand password  | `integralces` |
+| Merchand currency  | `NET2` |
+| Currency value     | `100` |
+
 
 ### 4. Create the Point of Sale payment method
 1. Go to *Point of Sale* and edit the *Settings* of your shop instance.
@@ -36,8 +58,10 @@ Before installing this addon, you must have a working instance of Odoo 12 with t
 6. At *Point of Sale* tab, select the Komunitin configuration you've just created. That will tell this addon to make online payments when this payment method is chosen.
 7. Save the new payment method and the Shop.
 
-### 5. Use community currency and support local economy!
-That's all! When you start a new point of sale session in the configured shop, a new payment method should appear. When validating a payment using this new method, you will need to create or choose a customer. The first time it will ask you to add their community currency account number. It will be saved as a partner bank account. Then it will trigger an actual transaction using the Komunitin accounting protocol API and you will immediately receive the payment in community currency units. The next time you choose this customer, the system will remember their account.
-
-In case you need to update or delete a community currency account from a customer, you have to do it from *Point of Sale* > *Customers*, as the shop interface doesn't have these features.
-
+### 5. Try it and add customer accounts
+1. When you start a new point of sale session in the configured shop, the new payment method should appear.
+2. On validating a payment using this new method, you will need to create or choose a customer.
+3. The first time it will ask you to add their community currency account number. It will be saved as a partner bank account. In testing environments, you may use the demo accounts `NET20001` and `NET20002`.
+4. Then it will trigger an actual transaction using the Komunitin accounting protocol API and you will immediately receive the payment in community currency units.
+5. The next time you choose this customer, the system will remember their account.
+6. In case you need to update or delete a community currency account from a customer, you have to do it from *Point of Sale* > *Customers*, as the shop interface doesn't have these features.
