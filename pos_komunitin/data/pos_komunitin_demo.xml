@@ -21,7 +21,7 @@
       <field name="is_company">1</field>
       <field name="bank_ids" eval="[(0, 0, {'acc_number': 'NET20001', 'bank_id': ref('pos_komunitin_demo_bank')})]"/>
     </record>
-    
+
     <record id="pos_komunitin_demo_res_partner_2" model="res.partner">
       <field name="name">Noether (Komunitin demo)</field>
       <field name="customer">1</field>
@@ -32,8 +32,10 @@
     <!-- Komunitin Configuration (local dev environment) -->
     <record id="pos_komunitin_demo_configuration" model="pos_komunitin.configuration">
       <field name="name">Komunitin (localhost)</field>
-      <field name="auth_url">http://host.docker.internal:2029/oauth2</field>
-      <field name="accounting_url">http://host.docker.internal:2029/ces/api/accounting</field>
+      <!--field name="auth_url">http://host.docker.internal:2029/oauth2</field-->
+      <field name="auth_url">https://demo.integralces.net/oauth2</field>
+      <!--field name="accounting_url">http://host.docker.internal:2029/ces/api/accounting</field-->
+      <field name="accounting_url">https://demo.integralces.net/ces/api/accounting</field>
       <field name="email">fermat@integralces.net</field>
       <field name="password">integralces</field>
       <field name="currency">NET2</field>
