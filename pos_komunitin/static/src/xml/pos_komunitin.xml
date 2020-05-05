@@ -5,6 +5,9 @@
             <div class="popup">
                 <header class="title"><t t-esc=" widget.options.title || '' " /></header>
                 <main class="body">
+                    <p>
+                        <t t-esc=" widget.options.body || '' " />
+                    </p>
                     <input type='text' t-att-value="widget.options.value || ''"></input>
                 </main>
                 <div class="footer">

@@ -36,9 +36,8 @@ Before installing this addon, you must have a working instance of Odoo 12 with t
 6. At *Point of Sale* tab, select the Komunitin configuration you've just created. That will tell this addon to make online payments when this payment method is chosen.
 7. Save the new payment method and the Shop.
 
-### 5. Define customer accounts
-1. Go to *Point of Sale* > *Orders* > *Customers*
-2. For each customer, click *Edit* and go to its *Invoicing* tab
-3. Under *Bank Accounts*, add their account number. The bank must be the same bank created before.
+### 5. Use community currency and support local economy!
+That's all! When you start a new point of sale session in the configured shop, a new payment method should appear. When validating a payment using this new method, you will need to create or choose a customer. The first time it will ask you to add their community currency account number. It will be saved as a partner bank account. Then it will trigger an actual transaction using the Komunitin accounting protocol API and you will immediately receive the payment in community currency units. The next time you choose this customer, the system will remember their account.
 
-That's all! When you start a new point of sale session in the configured shop, a new payment method should appear. When validating a payment using this new method, it will trigger an actual transaction using the Komunitin accounting protocol API and you will immediately receive the payment in community currency units.
+In case you need to update or delete a community currency account from a customer, you have to do it from *Point of Sale* > *Customers*, as the shop interface doesn't have these features.
+

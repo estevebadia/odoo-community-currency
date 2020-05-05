@@ -137,8 +137,6 @@ odoo.define("pos_komunitin.pos_komunitin", function (require) {
             after: "account.journal",
         }
     );
-    // Load the komunitin bank accounts in res.partner objects.
-    models.load_fields("res.partner", "bank_ids");
     // Load bank account objects for clients
     models.load_models(
         {
@@ -213,6 +211,30 @@ odoo.define("pos_komunitin.pos_komunitin", function (require) {
             }
             return [];
         },
+        add_client_bank_account(journal, client, account) {
+            // Save res.partner.bank record to the backend.
+            var record = {
+                partner_id: client.id,
+                bank_id: journal.bank_id[0],
+                acc_number: account,
+            };
+            return rpc.query({
+                model: "res.partner.bank",
+                method: "create",
+                args: [record],
+            })
+            .then(function () {
+                // Update PoS client-side cached data with new bank account.
+                if (client.komunitin_bank_accounts === undefined) {
+                    client.komunitin_bank_accounts = [];
+                }
+                client.komunitin_bank_accounts.push({
+                    partner_id: [record.partner_id],
+                    bank_id: [record.bank_id],
+                    acc_number: account
+                });
+            });
+        },
         /**
          * Performs the remote payment when user clicks on the [ Validate >> ] button.
          *
@@ -253,6 +275,7 @@ odoo.define("pos_komunitin.pos_komunitin", function (require) {
          */
         get_payer_account: function (paymentline) {
             var def = new $.Deferred();
+            var self = this;
             var client = this.pos.get_client();
             if (!client) {
                 this.gui.show_popup("error", {
@@ -261,7 +284,7 @@ odoo.define("pos_komunitin.pos_komunitin", function (require) {
                         "Set a customer with a valid account before validating this payment.",
                     cancel: function () {
                         // Delete pending payment.
-                        def.reject("Mising client");
+                        def.reject("Missing client");
                     },
                 });
                 return def;
@@ -275,13 +298,53 @@ odoo.define("pos_komunitin.pos_komunitin", function (require) {
             });
 
             if (accounts.length === 0) {
-                this.gui.show_popup("error", {
+                this.gui.show_popup("paymentconfirm", {
+                    error: true,
                     title: "Missing Community Currency account",
+                    confirmLabel: "Set account",
+                    cancelLabel: "Cancel",
                     body:
                         "The selected client does not have a Community Currency bank account for this payment method.",
+                    confirm: function () {
+                        self.gui.show_popup("paymentstextinput", {
+                            title: "Client community currency account",
+                            body: _.str.sprintf(
+                                "Set the community currency account for %s. This account will be linked to this client for future use. You should make sure that the account actually belongs to this client.",
+                                client.name
+                            ),
+                            cancel: function () {
+                                def.reject("Missing account");
+                            },
+                            confirm: function (value) {
+                                // Create the bank account in the backend.
+                                self
+                                    .add_client_bank_account(paymentline.cashregister.journal, client, value)
+                                    .then(function () {
+                                        def.resolve(value);
+                                    })
+                                    .fail(function (error) {
+                                        // Build error notification.
+                                        var message;
+                                        if (error.data && error.data.message) {
+                                            message = error.data.message;
+                                        } else if (error.message) {
+                                            message = error.message;
+                                        } else {
+                                            message = "Server did not provide details.";
+                                        }
+                                        self.gui.show_popup("error", {
+                                            title: "Error saving community currency account",
+                                            body: message,
+                                            cancel: function () {
+                                                def.reject(error);
+                                            }
+                                        });
+                                    });
+                            },
+                        });
+                    },
                     cancel: function () {
-                        // Delete pending payment.
-                        def.reject("Mising proper bank account client");
+                        def.reject("Missing account");
                     },
                 });
                 return def;
@@ -300,7 +363,7 @@ odoo.define("pos_komunitin.pos_komunitin", function (require) {
                     },
                     cancel: function () {
                         // user chose nothing
-                        def.reject("Bank account not chosen.");
+                        def.reject("Undefined account");
                     },
                 });
                 return def;
