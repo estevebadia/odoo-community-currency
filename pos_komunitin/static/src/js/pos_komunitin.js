@@ -551,13 +551,8 @@ odoo.define("pos_komunitin.pos_komunitin", function (require) {
 
             // Save transaction values to paymentline object.
             paymentline.komunitin_transaction_id = result.id;
-
-            var transfer = result.attributes.transfers[0];
-            // Get just the last element in payer URL.
-            var payer = transfer.payer.split("/").pop();
-            paymentline.komunitin_payer = payer;
             // Update komunitin_amount
-            paymentline.komunitin_amount = transfer.amount;
+            paymentline.komunitin_amount = result.attributes.amount;
 
             if (state === "committed") {
                 // All right! The payment has been successfully performed!
@@ -573,7 +568,7 @@ odoo.define("pos_komunitin.pos_komunitin", function (require) {
                     body: _.str.sprintf(
                         "Sucessfully charged %s from %s",
                         self.format_currency(amount),
-                        payer
+                        paymentline.komunitin_payer
                     ),
                     cancel: function () {
                         // Closes popup.

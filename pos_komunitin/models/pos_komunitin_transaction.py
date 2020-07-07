@@ -105,7 +105,7 @@ class KomunitinTransaction(models.Model):
             "scope": self.OAUTH_SCOPE
         }
 
-        try:
+        try:            
             http = self._get_http_session()
             response = http.post(token_url, params, timeout=5)
             # raise exception on error http status code.
@@ -161,12 +161,17 @@ class KomunitinTransaction(models.Model):
         return auth
 
     @classmethod
-    def _get_transactions_url(cls, config):
-        return config.accounting_url + '/' + config.currency + "/transactions"
-
+    def _get_transfers_url(cls, config):
+        return config.accounting_url + '/' + config.currency + "/transfers"
     @classmethod
-    def _get_transaction_url(cls, config, id):
-        return KomunitinTransaction._get_transactions_url(config) + '/' + id
+    def _get_transfer_url(cls, config, ident):
+        return KomunitinTransaction._get_transfers_url(config) + '/' + ident
+    @classmethod
+    def _get_accounts_url(cls, config):
+        return config.accounting_url + '/' + config.currency + "/accounts"
+    @classmethod
+    def _get_account_url(cls, config, code):
+        return KomunitinTransaction._get_accounts_url(config) + '/' + code
 
     @classmethod
     def _get_account_url(cls, config, account):
@@ -183,7 +188,6 @@ class KomunitinTransaction(models.Model):
             'Authorization': 'Bearer ' + auth.access_token
         }
         try:
-
             response = http.request(
                 method, url, headers=headers, timeout=15, json=body)
             response.raise_for_status()
@@ -206,10 +210,10 @@ class KomunitinTransaction(models.Model):
                     })
                     return self._komunitin_request(config, method, url, body)
 
-            if (response.status_code == 409 and method.upper() == 'POST'):
+            if (response.status_code == 409 and method.upper() == 'POST' and url == self._get_transfers_url(config)):
                 # Conflict. Attempting to create a transaction with an id that already exists.
                 # In this case we can return the already existent transaction.
-                return self._komunitin_request(config, 'GET', self._get_transaction_url(config, body['data']['id']))
+                return self._komunitin_request(config, 'GET', self._get_transfer_url(config, body['data']['id']))
 
             # Log errors.
             self._log_request_error("KOMUNITIN ACCOUNTING API ERROR", method.upper(
@@ -239,6 +243,11 @@ class KomunitinTransaction(models.Model):
         else:
             return response.json()
 
+    
+    def _get_account(self, config, code):
+        url = self._get_account_url(config, code)
+        return self._komunitin_request(config, 'GET', url)
+
     @api.model
     def do_payment(self, data):
         """Perform a payment using the Komunitin accounting protocol API.
@@ -247,8 +256,23 @@ class KomunitinTransaction(models.Model):
         journal = self._get_journal(data['journal_id'])
         config = self._get_pos_komunitin_config(journal)
 
-        # Get account from PoS journal.
-        account = journal.bank_acc_number
+        # Get merchand account code from PoS journal.
+        payee_code = journal.bank_acc_number
+        # Get customer account code from data.
+        payer_code = data['payer']
+
+        # TODO
+        # We need the account id's to create the transaction. We'll get them using
+        # two calls to the API. That means 3 API calls for each transfer. We should 
+        # improve that to one call per transfer by saving the account ids instead of
+        # (or in addition to) the account codes.
+
+        payee = self._get_account(config, payee_code)
+        if (not payee['data']['id']):
+            exceptions.UserError("Error getting payee account.")
+        payer = self._get_account(config, payer_code)
+        if (not payer['data']['id']):
+            exceptions.UserError("Error getting payer account.")
 
         # Check amount to charge.
         if (data['amount'] <= 0):
@@ -257,19 +281,29 @@ class KomunitinTransaction(models.Model):
         body = {
             "data": {
                 "id": data['transaction_id'],
-                "type": "transactions",
+                "type": "transfers",
                 "attributes": {
-                    "transfers": [{
-                        "payer": self._get_account_url(config, data['payer']),
-                        "payee": self._get_account_url(config, account),
-                        "amount": data['amount'],
-                        "meta": data['meta'],
-                    }],
-                    "state": "committed",
+                    "amount": data['amount'],
+                    "meta": data['meta'],
+                    "state": "committed"
+                },
+                "relationships": {
+                    "payer": {
+                        "data": {
+                            "type": "accounts",
+                            "id": payer['data']['id']
+                        }
+                    },
+                    "payee": {
+                        "data": {
+                            "type": "accounts",
+                            "id": payee['data']['id']
+                        }
+                    }
                 }
             }
         }
-        url = self._get_transactions_url(config)
+        url = self._get_transfers_url(config)
         return self._komunitin_request(config, 'POST', url, body)
 
     @api.model
@@ -279,7 +313,7 @@ class KomunitinTransaction(models.Model):
         """
         journal = self._get_journal(data['journal_id'])
         config = self._get_pos_komunitin_config(journal)
-        url = self._get_transaction_url(config, data['transaction_id'])
+        url = self._get_transfer_url(config, data['transaction_id'])
 
         return self._komunitin_request(config, 'DELETE', url)
 
@@ -289,6 +323,6 @@ class KomunitinTransaction(models.Model):
 
         journal = self._get_journal(data['journal_id'])
         config = self._get_pos_komunitin_config(journal)
-        url = self._get_transaction_url(config, data['transaction_id'])
+        url = self._get_transfer_url(config, data['transaction_id'])
 
         return self._komunitin_request(config, 'GET', url)

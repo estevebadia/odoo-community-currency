@@ -49,7 +49,7 @@ class AccountBankStatementLine(models.Model):
     komunitin_transaction_id = fields.Char(
         string='Transaction id', size=36, help='The transaction unique identifier.')
     komunitin_payer = fields.Char(
-        string='Payer account', help='The payer account URL.')
+        string='Payer account', help='The payer account code.')
     komunitin_amount = fields.Integer(string='Community Currency Amount',
                                       help='The amount in community currency scaled as appearing in transaction.')
 
