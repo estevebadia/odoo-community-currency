@@ -8,6 +8,9 @@ odoo.define("pos_komunitin.pos_komunitin", function (require) {
     var gui = require("point_of_sale.gui");
     var PopupWidget = require("point_of_sale.popups");
 
+    var core = require("web.core");
+    var _t = core._t;
+
     /**
      * This function creates a random UUID. I've not been able to use sucha a function in Odoo JS imported
      * libraries and don't want to create a dependency just for that.
@@ -282,9 +285,9 @@ odoo.define("pos_komunitin.pos_komunitin", function (require) {
             var client = this.pos.get_client();
             if (!client) {
                 this.gui.show_popup("error", {
-                    title: "Missing client",
+                    title: _t("Missing client"),
                     body:
-                        "Set a customer with a valid account before validating this payment.",
+                        _t("Set a customer with a valid account before validating this payment."),
                     cancel: function () {
                         // Delete pending payment.
                         def.reject("Missing client");
@@ -303,14 +306,14 @@ odoo.define("pos_komunitin.pos_komunitin", function (require) {
             if (accounts.length === 0) {
                 this.gui.show_popup("paymentconfirm", {
                     error: true,
-                    title: "Missing Community Currency account",
-                    confirmLabel: "Set account",
-                    cancelLabel: "Cancel",
+                    title: _t("Missing Community Currency account"),
+                    confirmLabel: _t("Set account"),
+                    cancelLabel: _t("Cancel"),
                     body:
-                        "The selected client does not have a Community Currency bank account for this payment method.",
+                        _t("The selected client does not have a Community Currency bank account for this payment method."),
                     confirm: function () {
                         self.gui.show_popup("paymentstextinput", {
-                            title: "Client community currency account",
+                            title: _t("Client community currency account"),
                             body: _.str.sprintf(
                                 "Set the community currency account for %s. This account will be linked to this client for future use. You should make sure that the account actually belongs to this client.",
                                 client.name
@@ -426,6 +429,7 @@ odoo.define("pos_komunitin.pos_komunitin", function (require) {
             }
 
             // Open informative popup. It will be closed after handling the payment.
+            // Todo how to traduce it?
             this.gui.show_popup("loading", {
                 body: _.str.sprintf(
                     "Charging %s to the community currency account %s...",
@@ -472,6 +476,7 @@ odoo.define("pos_komunitin.pos_komunitin", function (require) {
                 transaction_id: paymentline.komunitin_transaction_id,
             };
             // Open informative popup.
+            // Todo how to traduce it?
             this.gui.show_popup("loading", {
                 body: _.str.sprintf(
                     "Getting transaction %s...",
@@ -506,6 +511,7 @@ odoo.define("pos_komunitin.pos_komunitin", function (require) {
                 transaction_id: paymentline.komunitin_transaction_id,
             };
             // Open informative popup.
+            // Todo how to traduce it?
             this.gui.show_popup("loading", {
                 body: _.str.sprintf(
                     "Deleting transaction %s...",
@@ -564,7 +570,7 @@ odoo.define("pos_komunitin.pos_komunitin", function (require) {
                     paymentline.komunitin_amount / config.currency_value;
 
                 this.gui.show_popup("alert", {
-                    title: "Payment successful",
+                    title: _t("Payment successful"),
                     body: _.str.sprintf(
                         "Sucessfully charged %s from %s",
                         self.format_currency(amount),
@@ -579,11 +585,11 @@ odoo.define("pos_komunitin.pos_komunitin", function (require) {
                 // The payment is pending acceptance. Show a popup to let the user decide.
                 this.gui.show_popup("paymentconfirm", {
                     error: true,
-                    title: "Payment pending acceptance",
+                    title: _t("Payment pending acceptance"),
                     body:
-                        "The customer needs to manually accept the payment. They may do it right now or otherwise delete this transaction and pay by other means.",
-                    confirmLabel: "Refresh",
-                    cancelLabel: "Delete",
+                        _t("The customer needs to manually accept the payment. They may do it right now or otherwise delete this transaction and pay by other means."),
+                    confirmLabel: _t("Refresh"),
+                    cancelLabel: _t("Delete"),
                     confirm: function () {
                         // Get the updated state of the payment.
                         self.get_payment(paymentline)
@@ -608,13 +614,14 @@ odoo.define("pos_komunitin.pos_komunitin", function (require) {
             } else if (state === "rejected") {
                 this.gui.show_popup("paymentconfirm", {
                     error: true,
-                    title: "Payment rejected",
+                    title: _t("Payment rejected"),
+                    // Todo how to traduce it?
                     body: _.str.sprintf(
                         "Payment from account %s has been rejected. You can delete this payment or pay by other means.",
                         paymentline.komunitin_payer
                     ),
-                    confirmLabel: "OK",
-                    cancelLabel: "Delete",
+                    confirmLabel: _t("OK"),
+                    cancelLabel: _t("Delete"),
                     confirm: function () {
                         // Closes popup.
                         def.reject("Payment rejected");
@@ -650,7 +657,8 @@ odoo.define("pos_komunitin.pos_komunitin", function (require) {
             var def = new $.Deferred();
             paymentline.komunitin_transaction_id = undefined;
             this.gui.show_popup("alert", {
-                title: "Payment deleted",
+                title: _t("Payment deleted"),
+                // Todo how to traduce it?
                 body: _.str.sprintf(
                     "Payment from account %s has been deleted. You can retry the payment or pay by other means.",
                     paymentline.komunitin_payer
@@ -672,7 +680,7 @@ odoo.define("pos_komunitin.pos_komunitin", function (require) {
             console.error(paymentline);
 
             this.gui.show_popup("error", {
-                title: "Error occurred",
+                title: _t("Error occurred"),
                 body: error,
                 cancel: function () {
                     // Delete pending payment.
