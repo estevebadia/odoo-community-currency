@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<odoo>
+  <data>
+    <!-- Community currency bank object -->
+    <record id="pos_komunitin_demo_bank" model="res.bank">
+      <field name="name">Community Currency demo bank</field>
+    </record>
+
+    <!-- Community currency company bank account -->
+    <record id="pos_komunitin_demo_merchand_account" model="res.partner.bank">
+      <field name="acc_number">NET20003</field>
+      <field name="bank_id" ref="pos_komunitin_demo_bank"/>
+      <field name="partner_id" ref="base.main_partner"/>
+    </record>
+
+    <!-- Create customers with community currency bank accounts -->
+    <record id="pos_komunitin_demo_res_partner_1" model="res.partner">
+      <field name="name">Gauss (Komunitin demo)</field>
+      <field name="customer">1</field>
+      <field name="email">gauss@integralces.net</field>
+      <field name="is_company">1</field>
+      <field name="bank_ids" eval="[(0, 0, {'acc_number': 'NET20001', 'bank_id': ref('pos_komunitin_demo_bank')})]"/>
+    </record>
+
+    <record id="pos_komunitin_demo_res_partner_2" model="res.partner">
+      <field name="name">Noether (Komunitin demo)</field>
+      <field name="customer">1</field>
+      <field name="email">nether@integralces.net</field>
+      <field name="bank_ids" eval="[(0, 0, {'acc_number': 'NET20002', 'bank_id': ref('pos_komunitin_demo_bank')})]"/>
+    </record>
+
+    <!-- Komunitin Configuration (local dev environment) -->
+    <record id="pos_komunitin_demo_configuration" model="pos_komunitin.configuration">
+      <field name="name">Komunitin (localhost)</field>
+      <!--field name="auth_url">http://host.docker.internal:2029/oauth2</field-->
+      <field name="auth_url">https://demo.integralces.net/oauth2</field>
+      <!--field name="accounting_url">http://host.docker.internal:2029/ces/api/accounting</field-->
+      <field name="accounting_url">https://demo.integralces.net/ces/api/accounting</field>
+      <field name="email">fermat@integralces.net</field>
+      <field name="password">integralces</field>
+      <field name="currency">NET2</field>
+      <field name="currency_value">100</field>
+    </record>
+
+    <!-- Account journal configured to work with PoS and Komunitin-->
+    <record id="pos_komunitin_demo_journal" model="account.journal">
+      <field name="name">Komunitin demo</field>
+      <field name="code">KOMD</field>
+      <!-- POS account must be of type bank or cash-->
+      <field name="type">bank</field>
+      <!-- Use in POS -->
+      <field name="journal_user">True</field>
+      <!-- Use Komunitin config -->
+      <field name="pos_komunitin_config" ref="pos_komunitin_demo_configuration"/>
+      <field name="bank_account_id" ref="pos_komunitin_demo_merchand_account"/>
+    </record>
+
+    <!-- PoS instance configured with Komunitin payments enabled -->
+    <record id="pos_komunitin_demo_shop" model="pos.config">
+      <field name="name">Komunitin demo</field>
+      <!--
+          For many to many fields, this is the format we must use to specify the relation.
+          Not found docs more updated than https://doc.odoo.com/v6.0/developer/2_5_Objects_Fields_Methods/methods.html#osv.osv.osv.write
+        -->
+      <field name="journal_ids" eval="[(6,0,[ref('pos_komunitin_demo_journal')])]"></field>
+    </record>
+  </data>
+</odoo>

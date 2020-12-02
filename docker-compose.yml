@@ -1,0 +1,52 @@
+version: "3.3"
+
+services:
+  db:
+    image: postgres:10
+    ports:
+      - 5432:5432
+    volumes:
+      # Define named volume for database content.
+      - type: volume
+        source: odoo-db-data
+        target: /var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: "postgres"
+      POSTGRES_USER: "odoo"
+      POSTGRES_PASSWORD: "odoo"
+  odoo:
+    image: odoo:12
+    depends_on:
+      - db
+    ports:
+      - 8069:8069
+    volumes:
+      # Bind mount pos_komunitin module into the extra-addons container folder.
+      - type: bind
+        source: ./pos_komunitin
+        target: /mnt/extra-addons/pos_komunitin
+      - type: volume
+        source: odoo-web-data
+        target: /var/lib/odoo
+    environment:
+      USER: "odoo"
+      PASSWORD: "odoo"
+  # Not part of the deployment but useful for administrative purposes.
+  admin:
+    image: ubuntu
+    depends_on:
+      - db
+      - odoo
+    volumes:
+      - type: volume
+        source: odoo-db-data
+        target: /db-data
+      - type: volume
+        source: odoo-web-data
+        target: /web-data
+      - type: bind
+        source: ./.data
+        target: /backup
+volumes:
+  odoo-db-data:
+  odoo-web-data:
