@@ -1,5 +1,5 @@
 # Odoo Point of Sale integration of Komunitin accounting protocol
-**This addon is a proof of Concept, don't use it in prodyuction environment**
+**This addon is a proof of Concept, use it at your own risk**
 
 Odoo addon providing a new payment method in Point of Sale for Community Currencies. It uses the [Komunitin accounting protocol](https://github.com/komunitin/komunitin-api/blob/master/accounting/) to communicate with your community currency provider to instantly perform payments in community currencies. That is currently only implemented in [IntegralCES](https://integralces.net) community exchange system.
 
