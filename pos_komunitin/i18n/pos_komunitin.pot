@@ -1,0 +1,377 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+#	* pos_komunitin
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 12.0-20200629\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2020-07-28 17:12+0000\n"
+"PO-Revision-Date: 2020-07-28 17:12+0000\n"
+"Last-Translator: <>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: pos_komunitin
+#: model_terms:ir.ui.view,arch_db:pos_komunitin.view_pos_komunitin_configuration_form
+msgid "<i>Komunitin Configurations</i> define the user that will be used when \n"
+"                                getting payments from customers using a Community Currency in Point of Sale."
+msgstr ""
+
+#. module: pos_komunitin
+#: model:ir.model.fields,field_description:pos_komunitin.field_pos_komunitin_authorization__acess_token_expiry
+msgid "Access token expire time"
+msgstr ""
+
+#. module: pos_komunitin
+#: model:ir.model.fields,field_description:pos_komunitin.field_pos_komunitin_configuration__accounting_url
+msgid "Accounting API URL"
+msgstr ""
+
+#. module: pos_komunitin
+#: model:ir.model.fields,field_description:pos_komunitin.field_pos_komunitin_configuration__auth_url
+msgid "Auth API URL"
+msgstr ""
+
+#. module: pos_komunitin
+#: model:ir.model,name:pos_komunitin.model_account_bank_statement_line
+msgid "Bank Statement Line"
+msgstr ""
+
+#. module: pos_komunitin
+#: model_terms:ir.ui.view,arch_db:pos_komunitin.view_pos_komunitin_configuration_form
+msgid "Besides this record, you must define a <i>Bank</i> for Community Currency accounts\n"
+"                                and set the bank account numbers in the PoS Journal and in all customers."
+msgstr ""
+
+#. module: pos_komunitin
+#. openerp-web
+#: code:addons/pos_komunitin/static/src/js/pos_komunitin.js:311
+#: code:addons/pos_komunitin/static/src/xml/pos_komunitin.xml:17
+#, python-format
+msgid "Cancel"
+msgstr ""
+
+#. module: pos_komunitin
+#. openerp-web
+#: code:addons/pos_komunitin/static/src/js/pos_komunitin.js:316
+#, python-format
+msgid "Client community currency account"
+msgstr ""
+
+#. module: pos_komunitin
+#: model_terms:ir.ui.view,arch_db:pos_komunitin.view_pos_order
+msgid "Community Currency Account"
+msgstr ""
+
+#. module: pos_komunitin
+#: model:ir.model.fields,field_description:pos_komunitin.field_account_bank_statement_line__komunitin_amount
+msgid "Community Currency Amount"
+msgstr ""
+
+#. module: pos_komunitin
+#: model_terms:ir.actions.act_window,help:pos_komunitin.action_configuration_form
+msgid "Configure your Community Currency account"
+msgstr ""
+
+#. module: pos_komunitin
+#: model:ir.model.fields,help:pos_komunitin.field_pos_komunitin_configuration__currency_value
+msgid "Constant to apply to currency amounts before sending to komunitin API. Includes the currency value and the currency scale."
+msgstr ""
+
+#. module: pos_komunitin
+#: model:ir.model.fields,field_description:pos_komunitin.field_pos_komunitin_authorization__create_uid
+#: model:ir.model.fields,field_description:pos_komunitin.field_pos_komunitin_configuration__create_uid
+#: model:ir.model.fields,field_description:pos_komunitin.field_pos_komunitin_komunitin_transaction__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: pos_komunitin
+#: model:ir.model.fields,field_description:pos_komunitin.field_pos_komunitin_authorization__create_date
+#: model:ir.model.fields,field_description:pos_komunitin.field_pos_komunitin_configuration__create_date
+#: model:ir.model.fields,field_description:pos_komunitin.field_pos_komunitin_komunitin_transaction__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: pos_komunitin
+#: model:ir.model.fields,field_description:pos_komunitin.field_pos_komunitin_configuration__currency_value
+msgid "Currency value"
+msgstr ""
+
+#. module: pos_komunitin
+#. openerp-web
+#: code:addons/pos_komunitin/static/src/js/pos_komunitin.js:592
+#: code:addons/pos_komunitin/static/src/js/pos_komunitin.js:624
+#, python-format
+msgid "Delete"
+msgstr ""
+
+#. module: pos_komunitin
+#: model:ir.model.fields,field_description:pos_komunitin.field_pos_komunitin_authorization__display_name
+#: model:ir.model.fields,field_description:pos_komunitin.field_pos_komunitin_configuration__display_name
+#: model:ir.model.fields,field_description:pos_komunitin.field_pos_komunitin_komunitin_transaction__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: pos_komunitin
+#: model:ir.model.fields,help:pos_komunitin.field_pos_komunitin_configuration__email
+msgid "Email of the merchant to authenticate them on the payment provider server."
+msgstr ""
+
+#. module: pos_komunitin
+#. openerp-web
+#: code:addons/pos_komunitin/static/src/js/pos_komunitin.js:683
+#, python-format
+msgid "Error occurred"
+msgstr ""
+
+#. module: pos_komunitin
+#: model:ir.model.fields,field_description:pos_komunitin.field_pos_komunitin_authorization__id
+#: model:ir.model.fields,field_description:pos_komunitin.field_pos_komunitin_configuration__id
+#: model:ir.model.fields,field_description:pos_komunitin.field_pos_komunitin_komunitin_transaction__id
+msgid "ID"
+msgstr ""
+
+#. module: pos_komunitin
+#: model_terms:ir.ui.view,arch_db:pos_komunitin.view_pos_komunitin_configuration_form
+msgid "In order to use this module, your Community Currency provider must support \n"
+"                                the Komunitin accounting protocol."
+msgstr ""
+
+#. module: pos_komunitin
+#: model:ir.model,name:pos_komunitin.model_account_journal
+msgid "Journal"
+msgstr ""
+
+#. module: pos_komunitin
+#: model:ir.model,name:pos_komunitin.model_pos_komunitin_authorization
+msgid "Komunitin API OAuth2 authorization tokens"
+msgstr ""
+
+#. module: pos_komunitin
+#: model:ir.actions.act_window,name:pos_komunitin.action_configuration_form
+#: model:ir.ui.menu,name:pos_komunitin.menu_pos_pos_komunitin_config
+msgid "Komunitin Configurations"
+msgstr ""
+
+#. module: pos_komunitin
+#: model:ir.model.fields,field_description:pos_komunitin.field_account_journal__pos_komunitin_config
+#: model:ir.model.fields,field_description:pos_komunitin.field_pos_komunitin_authorization__configuration
+msgid "Komunitin configuration"
+msgstr ""
+
+#. module: pos_komunitin
+#: model:ir.model.fields,field_description:pos_komunitin.field_pos_komunitin_authorization____last_update
+#: model:ir.model.fields,field_description:pos_komunitin.field_pos_komunitin_configuration____last_update
+#: model:ir.model.fields,field_description:pos_komunitin.field_pos_komunitin_komunitin_transaction____last_update
+msgid "Last Modified on"
+msgstr ""
+
+#. module: pos_komunitin
+#: model:ir.model.fields,field_description:pos_komunitin.field_pos_komunitin_authorization__write_uid
+#: model:ir.model.fields,field_description:pos_komunitin.field_pos_komunitin_configuration__write_uid
+#: model:ir.model.fields,field_description:pos_komunitin.field_pos_komunitin_komunitin_transaction__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: pos_komunitin
+#: model:ir.model.fields,field_description:pos_komunitin.field_pos_komunitin_authorization__write_date
+#: model:ir.model.fields,field_description:pos_komunitin.field_pos_komunitin_configuration__write_date
+#: model:ir.model.fields,field_description:pos_komunitin.field_pos_komunitin_komunitin_transaction__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: pos_komunitin
+#: model:ir.model.fields,field_description:pos_komunitin.field_pos_komunitin_configuration__currency
+msgid "Merchand currency"
+msgstr ""
+
+#. module: pos_komunitin
+#: model:ir.model.fields,field_description:pos_komunitin.field_pos_komunitin_configuration__email
+msgid "Merchand email"
+msgstr ""
+
+#. module: pos_komunitin
+#: model:ir.model.fields,field_description:pos_komunitin.field_pos_komunitin_configuration__password
+msgid "Merchant Password"
+msgstr ""
+
+#. module: pos_komunitin
+#. openerp-web
+#: code:addons/pos_komunitin/static/src/js/pos_komunitin.js:309
+#, python-format
+msgid "Missing Community Currency account"
+msgstr ""
+
+#. module: pos_komunitin
+#. openerp-web
+#: code:addons/pos_komunitin/static/src/js/pos_komunitin.js:288
+#, python-format
+msgid "Missing client"
+msgstr ""
+
+#. module: pos_komunitin
+#: model:ir.model.fields,field_description:pos_komunitin.field_pos_komunitin_configuration__name
+msgid "Name"
+msgstr ""
+
+#. module: pos_komunitin
+#: model:ir.model.fields,help:pos_komunitin.field_pos_komunitin_configuration__name
+msgid "Name of this Komunitin Configuration"
+msgstr ""
+
+#. module: pos_komunitin
+#: model:ir.model.fields,field_description:pos_komunitin.field_pos_komunitin_authorization__access_token
+msgid "OAuth2 access token"
+msgstr ""
+
+#. module: pos_komunitin
+#. openerp-web
+#: code:addons/pos_komunitin/static/src/js/pos_komunitin.js:623
+#, python-format
+msgid "OK"
+msgstr ""
+
+#. module: pos_komunitin
+#. openerp-web
+#: code:addons/pos_komunitin/static/src/xml/pos_komunitin.xml:14
+#, python-format
+msgid "Ok"
+msgstr ""
+
+#. module: pos_komunitin
+#: model:ir.model.fields,help:pos_komunitin.field_pos_komunitin_configuration__password
+msgid "Password of the merchant to authenticate them on the payment provider server."
+msgstr ""
+
+#. module: pos_komunitin
+#: model:ir.model.fields,field_description:pos_komunitin.field_account_bank_statement_line__komunitin_payer
+msgid "Payer account"
+msgstr ""
+
+#. module: pos_komunitin
+#. openerp-web
+#: code:addons/pos_komunitin/static/src/js/pos_komunitin.js:660
+#, python-format
+msgid "Payment deleted"
+msgstr ""
+
+#. module: pos_komunitin
+#. openerp-web
+#: code:addons/pos_komunitin/static/src/js/pos_komunitin.js:588
+#, python-format
+msgid "Payment pending acceptance"
+msgstr ""
+
+#. module: pos_komunitin
+#. openerp-web
+#: code:addons/pos_komunitin/static/src/js/pos_komunitin.js:617
+#, python-format
+msgid "Payment rejected"
+msgstr ""
+
+#. module: pos_komunitin
+#. openerp-web
+#: code:addons/pos_komunitin/static/src/js/pos_komunitin.js:573
+#, python-format
+msgid "Payment successful"
+msgstr ""
+
+#. module: pos_komunitin
+#: model:ir.model,name:pos_komunitin.model_pos_komunitin_configuration
+msgid "Point of Sale Komunitin Configuration"
+msgstr ""
+
+#. module: pos_komunitin
+#: model:ir.model,name:pos_komunitin.model_pos_komunitin_komunitin_transaction
+msgid "Point of Sale Komunitin Transaction API"
+msgstr ""
+
+#. module: pos_komunitin
+#: model:ir.model,name:pos_komunitin.model_pos_order
+msgid "Point of Sale Orders"
+msgstr ""
+
+#. module: pos_komunitin
+#. openerp-web
+#: code:addons/pos_komunitin/static/src/js/pos_komunitin.js:591
+#, python-format
+msgid "Refresh"
+msgstr ""
+
+#. module: pos_komunitin
+#. openerp-web
+#: code:addons/pos_komunitin/static/src/js/pos_komunitin.js:290
+#, python-format
+msgid "Set a customer with a valid account before validating this payment."
+msgstr ""
+
+#. module: pos_komunitin
+#. openerp-web
+#: code:addons/pos_komunitin/static/src/js/pos_komunitin.js:310
+#, python-format
+msgid "Set account"
+msgstr ""
+
+#. module: pos_komunitin
+#: model:ir.model.fields,help:pos_komunitin.field_account_bank_statement_line__komunitin_amount
+msgid "The amount in community currency scaled as appearing in transaction."
+msgstr ""
+
+#. module: pos_komunitin
+#: model:ir.model.fields,help:pos_komunitin.field_pos_komunitin_configuration__currency
+msgid "The code of the merchand currency. Usually the first 4 letters of the account. Ex: \"ABCD\"."
+msgstr ""
+
+#. module: pos_komunitin
+#: model:ir.model.fields,help:pos_komunitin.field_account_journal__pos_komunitin_config
+msgid "The configuration of Komunitin used for this journal"
+msgstr ""
+
+#. module: pos_komunitin
+#. openerp-web
+#: code:addons/pos_komunitin/static/src/js/pos_komunitin.js:590
+#, python-format
+msgid "The customer needs to manually accept the payment. They may do it right now or otherwise delete this transaction and pay by other means."
+msgstr ""
+
+#. module: pos_komunitin
+#: model:ir.model.fields,help:pos_komunitin.field_account_bank_statement_line__komunitin_payer
+msgid "The payer account code."
+msgstr ""
+
+#. module: pos_komunitin
+#. openerp-web
+#: code:addons/pos_komunitin/static/src/js/pos_komunitin.js:313
+#, python-format
+msgid "The selected client does not have a Community Currency bank account for this payment method."
+msgstr ""
+
+#. module: pos_komunitin
+#: model:ir.model.fields,help:pos_komunitin.field_account_bank_statement_line__komunitin_transaction_id
+msgid "The transaction unique identifier."
+msgstr ""
+
+#. module: pos_komunitin
+#: model:ir.model.fields,field_description:pos_komunitin.field_pos_komunitin_authorization__created
+msgid "Token creatin time"
+msgstr ""
+
+#. module: pos_komunitin
+#: model:ir.model.fields,field_description:pos_komunitin.field_account_bank_statement_line__komunitin_transaction_id
+msgid "Transaction id"
+msgstr ""
+
+#. module: pos_komunitin
+#: model:ir.model.fields,help:pos_komunitin.field_pos_komunitin_configuration__accounting_url
+msgid "URL where to find the Komunitin accounting protocol API."
+msgstr ""
+
+#. module: pos_komunitin
+#: model:ir.model.fields,help:pos_komunitin.field_pos_komunitin_configuration__auth_url
+msgid "URL where to find the Komunitin authorization API."
+msgstr ""
+
