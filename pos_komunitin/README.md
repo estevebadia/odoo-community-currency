@@ -33,6 +33,8 @@ In any case, enable the addon:
 8. Under *Account Number*, set the account number of your company. In test environments, you may use the account *NET20003*.
 9. Click *Save* to commit your changes.
 
+![Gif info at /doc showing how to configure this section](../doc/2%20create%20the%20company%20bank%20account.gif)
+
 ### 3. Create the Komunitin configuration
 
 1. Go to *Point of Sale* > *Configuration* > *Komunitin Configurations*. If you don't see this menu item then the addon has not been properly installed or you are not in developer mode.
@@ -48,6 +50,7 @@ In any case, enable the addon:
 | Merchand currency  | `NET2` |
 | Currency value     | `100` |
 
+![Gif info at /doc showing how to configure this section](../doc/3%20create%20the%20komunitin%20configuration.gif)
 
 ### 4. Create the Point of Sale payment method
 1. Go to *Point of Sale* and edit the *Settings* of your shop instance.
@@ -58,6 +61,8 @@ In any case, enable the addon:
 6. At *Point of Sale* tab, select the Komunitin configuration you've just created. That will tell this addon to make online payments when this payment method is chosen.
 7. Save the new payment method and the Shop.
 
+![Gif info at /doc showing how to configure this section](../doc/4%20create%20the%20point%20of%20sale%20mapyment%20method.gif)
+
 ### 5. Try it and add customer accounts
 1. When you start a new point of sale session in the configured shop, the new payment method should appear.
 2. On validating a payment using this new method, you will need to create or choose a customer.
@@ -65,3 +70,5 @@ In any case, enable the addon:
 4. Then it will trigger an actual transaction using the Komunitin accounting protocol API and you will immediately receive the payment in community currency units.
 5. The next time you choose this customer, the system will remember their account.
 6. In case you need to update or delete a community currency account from a customer, you have to do it from *Point of Sale* > *Customers*, as the shop interface doesn't have these features.
+
+![Gif info at /doc showing how to configure this section](../doc/5%20try%20it%20and%20add%20customer%20accounts.gif)
